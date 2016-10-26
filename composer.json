@@ -1,0 +1,13 @@
+{
+    "name": "hecke29/domain-offensive-client",
+    "description": "A client to access the SOAP-API for domain registering and stuff at do.de",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Timo Foerster",
+            "email": "tfoerster@webfoersterei.de"
+        }
+    ],
+    "require": {}
+}
