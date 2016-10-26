@@ -9,5 +9,21 @@
             "email": "tfoerster@webfoersterei.de"
         }
     ],
-    "require": {}
+    "require": {
+        "besimple/soap-client": "^0.2.6",
+        "symfony/validator": "^3.1"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^5.6"
+    },
+    "autoload": {
+        "psr-4": {
+            "Hecke29\\DomainOffensiveClient\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Hecke29\\DomainOffensiveClient\\Tests\\": "tests/"
+        }
+    }
 }
