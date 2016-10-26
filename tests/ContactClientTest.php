@@ -65,15 +65,4 @@ class ContactClientTest extends \PHPUnit_Framework_TestCase
         $client->createContact(null, null, null, null, null, null, null, null, null, null, null, null, null, null);
     }
 
-    public function testGetList()
-    {
-        $contacts = [['SB1234567@HANDLES.DE', 'Fulton', 'Bolton'],
-            ['SB1234568@HANDLES.DE', 'Hänna', 'Montäna'],
-            ['SB1234569@HANDLES.DE', 'Let it', 'Beé']];
-        $soap = $this->getSoapClient('GetContactList', $contacts);
-        $client = new ContactClient($soap);
-
-        $this->assertEquals($contacts, $client->getList());
-    }
-
 }
