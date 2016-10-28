@@ -4,7 +4,6 @@
 namespace Hecke29\DomainOffensiveClient\Service\Client;
 
 
-use BeSimple\SoapClient\SoapClient;
 use Hecke29\DomainOffensiveClient\Exception\InvalidCredentialsException;
 use Hecke29\DomainOffensiveClient\Exception\InvalidPartnerException;
 use Hecke29\DomainOffensiveClient\Service\AbstractClient;
@@ -12,7 +11,7 @@ use Hecke29\DomainOffensiveClient\Service\AbstractClient;
 class AuthenticationClient extends AbstractClient
 {
     /**
-     * @var SoapClient
+     * @var \SoapClient
      */
     private $soapClient;
 
@@ -31,7 +30,7 @@ class AuthenticationClient extends AbstractClient
      */
     private $password;
 
-    public function __construct(SoapClient $soapClient, $partner, $username, $password)
+    public function __construct(\SoapClient $soapClient, $partner, $username, $password)
     {
         $this->soapClient = $soapClient;
         $this->partner = $partner;
@@ -50,7 +49,7 @@ class AuthenticationClient extends AbstractClient
      */
     public function authenticatePartner()
     {
-        $response = $this->soapClient->__soapCall("AuthPartner", [$this->partner, $this->username, $this->password]);
+        $response = $this->soapClient->__soapCall('AuthPartner', [$this->partner, $this->username, $this->password]);
 
         if (!$this->isSuccessfulResponse($response)) {
             $this->handleFailedResponse($response, [

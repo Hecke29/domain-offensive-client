@@ -10,7 +10,6 @@
         }
     ],
     "require": {
-        "besimple/soap-client": "^0.2.6",
         "symfony/validator": "^3.1"
     },
     "require-dev": {
