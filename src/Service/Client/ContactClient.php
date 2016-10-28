@@ -4,18 +4,17 @@
 namespace Hecke29\DomainOffensiveClient\Service\Client;
 
 
-use BeSimple\SoapClient\SoapClient;
 use Hecke29\DomainOffensiveClient\Exception\InvalidContactException;
 use Hecke29\DomainOffensiveClient\Service\AbstractClient;
 
 class ContactClient extends AbstractClient
 {
     /**
-     * @var SoapClient
+     * @var \SoapClient
      */
     private $soapClient;
 
-    public function __construct(SoapClient $soapClient)
+    public function __construct(\SoapClient $soapClient)
     {
         $this->soapClient = $soapClient;
     }
