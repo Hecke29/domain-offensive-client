@@ -6,6 +6,7 @@ namespace Hecke29\DomainOffensiveClient\Tests;
 
 use Hecke29\DomainOffensiveClient\Exception\InvalidContactException;
 use Hecke29\DomainOffensiveClient\Model\Contact;
+use Hecke29\DomainOffensiveClient\Service\Client\AuthenticationClient;
 use Hecke29\DomainOffensiveClient\Service\Client\ContactClient;
 use Hecke29\DomainOffensiveClient\Service\ContactService;
 use Symfony\Component\Validator\ConstraintViolation;
@@ -55,7 +56,12 @@ class ContactServiceTest extends \PHPUnit_Framework_TestCase
             ->will($this->returnValue($handle));
 
 
-        $service = new ContactService($validator, $client);
+        $auth = $this->getAuthClient();
+        $auth->expects($this->once())
+            ->method('authenticatePartner');
+
+        /** @var AuthenticationClient $auth */
+        $service = new ContactService($validator, $auth, $client);
 
         $this->assertSame($contact, $service->create($contact));
     }
@@ -78,6 +84,19 @@ class ContactServiceTest extends \PHPUnit_Framework_TestCase
         $contact->setMail('mail@example.com');
 
         return $contact;
+    }
+
+    /**
+     * @return \PHPUnit_Framework_MockObject_MockObject
+     */
+    private function getAuthClient()
+    {
+        $auth = $this->getMockBuilder(AuthenticationClient::class)
+            ->disableOriginalConstructor()
+            ->setMethods(['authenticatePartner'])
+            ->getMock();
+
+        return $auth;
     }
 
     public function testCreateValidationFailed()
@@ -105,7 +124,10 @@ class ContactServiceTest extends \PHPUnit_Framework_TestCase
         $client->expects($this->never())
             ->method('createContact');
 
-        $service = new ContactService($validator, $client);
+        $auth = $this->getAuthClient();
+
+        /** @var AuthenticationClient $auth */
+        $service = new ContactService($validator, $auth, $client);
 
         $this->expectException(InvalidContactException::class);
         $service->create($contact);

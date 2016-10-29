@@ -30,7 +30,7 @@ class ContactClientTest extends \PHPUnit_Framework_TestCase
      */
     private function getSoapClient($calledMethod, $result)
     {
-        $soap = $this->getMockBuilder(SoapClient::class)
+        $soap = $this->getMockBuilder(\SoapClient::class)
             ->disableOriginalConstructor()
             ->getMock();
         $soap->expects($this->once())
