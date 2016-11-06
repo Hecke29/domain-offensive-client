@@ -156,7 +156,7 @@ class ContactServiceTest extends \PHPUnit_Framework_TestCase
                 'country' => 'DE',
                 'state' => '',
                 'telefon' => '+49 123 456789',
-                'fax' => '+49 123 456789',
+                'fax' => '+49 123 987654',
                 'email' => 'max@mustermann.de'
             ]));
 
@@ -175,7 +175,7 @@ class ContactServiceTest extends \PHPUnit_Framework_TestCase
             ->setCountry('DE')
             ->setState('')
             ->setPhone('+49 123 456789')
-            ->setFax('+49 123 456789')
+            ->setFax('+49 123 987654')
             ->setMail('max@mustermann.de');
 
         $this->assertEquals($expect, $service->get($handle));

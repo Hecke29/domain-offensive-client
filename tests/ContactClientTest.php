@@ -95,7 +95,7 @@ class ContactClientTest extends \PHPUnit_Framework_TestCase
             'country' => 'DE',
             'state' => '',
             'telefon' => '+49 123 456789',
-            'fax' => '+49 123 456789',
+            'fax' => '+49 123 987654',
             'email' => 'max@mustermann.de'
         ];
         $soap = $this->getSoapClient('GetContactDetails', $contact, [$handle]);
