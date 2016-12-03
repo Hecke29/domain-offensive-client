@@ -1,8 +1,9 @@
 <?php
 
-
 namespace Hecke29\DomainOffensiveClient\Model;
 
+
+use Symfony\Component\Validator\Constraints as Assert;
 
 class Contact
 {
@@ -55,18 +56,20 @@ class Contact
     private $country;
 
     /**
-     * @Assert\Regex("\+[0-9]{2}\s[0-9]{2-5}\s[0-9]{3-9}")
+     * @Assert\NotBlank()
+     * @Assert\Regex("/^\+[0-9]{2}\s[0-9]{2,5}\s[0-9]{3,9}$/")
      * @var string
      */
     private $phone;
 
     /**
-     * @Assert\Regex("\+[0-9]{2}\s[0-9]{2-5}\s[0-9]{3-9}")
+     * @Assert\Regex("/^\+[0-9]{2}\s[0-9]{2,5}\s[0-9]{3,9}$/")
      * @var string
      */
     private $fax;
 
     /**
+     * @Assert\NotBlank()
      * @Assert\Email()
      * @var string
      */
