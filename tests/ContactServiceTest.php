@@ -50,7 +50,7 @@ class ContactServiceTest extends \PHPUnit_Framework_TestCase
                 $this->equalTo($contact->getMail()),
                 $this->equalTo($contact->getState()),
                 $this->equalTo($contact->getTaxId()),
-                $this->equalTo($contact->getBirthday()),
+                $this->equalTo($contact->getBirthday()->format('c')),
                 $this->equalTo($contact->getRegisterId())
             )
             ->will($this->returnValue($handle));
@@ -68,7 +68,6 @@ class ContactServiceTest extends \PHPUnit_Framework_TestCase
 
     private function getValidContact($contact)
     {
-
         /** @var Contact $contact */
         $contact->setFirstname('Fulton');
         $contact->setLastname('Bolton');
