@@ -132,4 +132,53 @@ class ContactServiceTest extends \PHPUnit_Framework_TestCase
         $this->expectException(InvalidContactException::class);
         $service->create($contact);
     }
+
+    public function testGetSingle()
+    {
+        $handle = 'SB1234567@HANDLES.DE';
+
+        $validator = $this->createMock(ValidatorInterface::class);
+        $auth = $this->getAuthClient();
+
+        $client = $this->createMock(ContactClient::class);
+        $client->expects($this->once())
+            ->method('get')
+            ->with($this->equalTo($handle))
+            ->will($this->returnValue([
+                'result' => 'success',
+                'handle' => 'SB1234567@HANDLES.DE',
+                'company' => 'Musterfirma',
+                'firstname' => 'Max',
+                'lastname' => 'Mustermann',
+                'address' => 'Musterstrasse 123',
+                'pcode' => '12345',
+                'city' => 'Musterstadt',
+                'country' => 'DE',
+                'state' => '',
+                'telefon' => '+49 123 456789',
+                'fax' => '+49 123 987654',
+                'email' => 'max@mustermann.de'
+            ]));
+
+        /** @var AuthenticationClient $auth */
+        $service = new ContactService($validator, $auth, $client);
+
+        $expect = new Contact();
+        $expect->setHandle($handle)
+            ->setCompany('Musterfirma')
+            ->setFirstname('Max')
+            ->setLastname('Mustermann')
+            ->setStreet('Musterstrasse')
+            ->setHouseNumber('123')
+            ->setZipCode('12345')
+            ->setCity('Musterstadt')
+            ->setCountry('DE')
+            ->setState('')
+            ->setPhone('+49 123 456789')
+            ->setFax('+49 123 987654')
+            ->setMail('max@mustermann.de');
+
+        $this->assertEquals($expect, $service->get($handle));
+
+    }
 }

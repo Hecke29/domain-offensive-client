@@ -69,4 +69,16 @@ class ContactClient extends AbstractClient
         return $response;
     }
 
+
+    /**
+     * @param $handle
+     * @return array
+     */
+    public function get($handle)
+    {
+        $response = $this->soapClient->__soapCall('GetContactDetails', [$handle]);
+
+        return $response;
+    }
+
 }
