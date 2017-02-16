@@ -55,7 +55,7 @@ class ContactService
         $handle = $this->contactClient->createContact($contact->getCompany(), $contact->getFirstname(),
             $contact->getLastname(), $contact->getStreet(), $contact->getZipCode(), $contact->getCity(),
             $contact->getCountry(), $contact->getPhone(), $contact->getFax(), $contact->getMail(),
-            $contact->getState(), $contact->getTaxId(), $contact->getBirthday(), $contact->getRegisterId());
+            $contact->getState(), $contact->getTaxId(), $contact->getBirthday()->format('c'), $contact->getRegisterId());
 
         $contact->setHandle($handle);
 
