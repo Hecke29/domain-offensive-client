@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Hecke29\DomainOffensiveClient\Service;
-
 
 use Hecke29\DomainOffensiveClient\Exception\AuthenticationException;
 use Hecke29\DomainOffensiveClient\Exception\InvalidContactException;
@@ -13,118 +11,132 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class ContactService
 {
-    /**
-     * @var ContactClient
-     */
-    private $contactClient;
+  /**
+   * @var AuthenticationClient
+   */
+  private $authenticationClient;
 
-    /**
-     * @var ValidatorInterface
-     */
-    private $validator;
+  /**
+   * @var ContactClient
+   */
+  private $contactClient;
 
-    /**
-     * @var AuthenticationClient
-     */
-    private $authenticationClient;
+  /**
+   * @var ValidatorInterface
+   */
+  private $validator;
 
-    public function __construct(ValidatorInterface $validator, AuthenticationClient $authenticationClient, ContactClient $contactClient)
-    {
-        $this->validator = $validator;
-        $this->authenticationClient = $authenticationClient;
-        $this->contactClient = $contactClient;
+  public function __construct(
+    ValidatorInterface $validator,
+    AuthenticationClient $authenticationClient,
+    ContactClient $contactClient
+  ) {
+    $this->validator = $validator;
+    $this->authenticationClient = $authenticationClient;
+    $this->contactClient = $contactClient;
+  }
+
+  /**
+   * Creates a new contact.
+   *
+   * @param Contact $contact
+   *
+   * @return Contact
+   * @throws \Exception
+   */
+  public function create(Contact $contact) {
+    $errors = $this->validator->validate($contact);
+
+    if (count($errors) > 0) {
+      throw new InvalidContactException((string)$errors);
     }
 
-    /**
-     * Creates a new contact.
-     *
-     * @param Contact $contact
-     * @return Contact
-     * @throws \Exception
-     */
-    public function create(Contact $contact)
-    {
-        $errors = $this->validator->validate($contact);
+    $this->authenticationClient->authenticatePartner();
 
-        if (count($errors) > 0) {
-            throw new InvalidContactException((string)$errors);
-        }
+    $handle = $this->contactClient->createContact(
+      $contact->getCompany(),
+      $contact->getFirstname(),
+      $contact->getLastname(),
+      $contact->getStreet(),
+      $contact->getZipCode(),
+      $contact->getCity(),
+      $contact->getCountry(),
+      $contact->getPhone(),
+      $contact->getFax(),
+      $contact->getMail(),
+      $contact->getState(),
+      $contact->getTaxId(),
+      $contact->getBirthday()
+              ->format('c'),
+      $contact->getRegisterId()
+    );
 
-        $this->authenticationClient->authenticatePartner();
+    $contact->setHandle($handle);
 
-        $handle = $this->contactClient->createContact($contact->getCompany(), $contact->getFirstname(),
-            $contact->getLastname(), $contact->getStreet(), $contact->getZipCode(), $contact->getCity(),
-            $contact->getCountry(), $contact->getPhone(), $contact->getFax(), $contact->getMail(),
-            $contact->getState(), $contact->getTaxId(), $contact->getBirthday()->format('c'), $contact->getRegisterId());
+    return $contact;
+  }
 
-        $contact->setHandle($handle);
+  /**
+   * Gets a single contact by handle.
+   *
+   * @param $handle
+   *
+   * @return Contact
+   */
+  public function get($handle) {
+    $this->authenticationClient->authenticatePartner();
 
-        return $contact;
-    }
+    $result = $this->contactClient->get($handle);
 
-    /**
-     * Gets a list of all clients
-     *
-     * @return array
-     * @throws AuthenticationException
-     */
-    public function getList()
-    {
-        $this->authenticationClient->authenticatePartner();
+    $contact = new Contact();
+    $contact->setHandle($handle);
 
-        return $this->contactClient->getList();
-    }
+    $contact->setCompany($result['company']);
+    $contact->setFirstname($result['firstname']);
+    $contact->setLastname($result['lastname']);
 
-    /**
-     * Gets a single contact by handle.
-     *
-     * @param $handle
-     * @return Contact
-     */
-    public function get($handle)
-    {
-        $this->authenticationClient->authenticatePartner();
+    list($street, $houseNumber) = $this->convertAddress($result['address']);
+    $contact->setStreet($street);
+    $contact->setHouseNumber($houseNumber);
 
-        $result = $this->contactClient->get($handle);
+    $contact->setZipCode($result['pcode']);
+    $contact->setCity($result['city']);
+    $contact->setState($result['state']);
+    $contact->setBirthday(null);
+    $contact->setCountry($result['country']);
+    $contact->setPhone($result['telefon']);
+    $contact->setFax($result['fax']);
+    $contact->setMail($result['email']);
 
-        $contact = new Contact();
-        $contact->setHandle($handle);
+    return $contact;
+  }
 
-        $contact->setCompany($result['company']);
-        $contact->setFirstname($result['firstname']);
-        $contact->setLastname($result['lastname']);
+  /**
+   * Gets a list of all clients
+   *
+   * @return array
+   * @throws AuthenticationException
+   */
+  public function getList() {
+    $this->authenticationClient->authenticatePartner();
 
-        list($street, $houseNumber) = $this->convertAddress($result['address']);
-        $contact->setStreet($street);
-        $contact->setHouseNumber($houseNumber);
+    return $this->contactClient->getList();
+  }
 
+  /**
+   * Converts a address-line to street and houseNumber
+   *
+   * @param $address
+   *
+   * @return array
+   */
+  private function convertAddress($address) {
+    preg_match('/([^\d]+)\s(.+)/i', $address, $result);
 
-        $contact->setZipCode($result['pcode']);
-        $contact->setCity($result['city']);
-        $contact->setState($result['state']);
-        $contact->setBirthday(null);
-        $contact->setCountry($result['country']);
-        $contact->setPhone($result['telefon']);
-        $contact->setFax($result['fax']);
-        $contact->setMail($result['email']);
+    $street = trim($result[1]) ?: null;
+    $houseNumber = trim($result[2]) ?: null;
 
-        return $contact;
-    }
-
-    /**
-     * Converts a address-line to street and houseNumber
-     *
-     * @param $address
-     * @return array
-     */
-    private function convertAddress($address)
-    {
-        preg_match('/([^\d]+)\s(.+)/i', $address, $result);
-
-        $street = trim($result[1]) ?: null;
-        $houseNumber = trim($result[2]) ?: null;
-
-        return [$street, $houseNumber];
-    }
+    return [$street, $houseNumber];
+  }
 
 }
