@@ -2,6 +2,7 @@
 
 namespace Hecke29\DomainOffensiveClient\Service;
 
+use Hecke29\DomainOffensiveClient\Exception\ContactNotUniqueException;
 use Hecke29\DomainOffensiveClient\Exception\InvalidContactException;
 use Hecke29\DomainOffensiveClient\Model\Contact;
 use Hecke29\DomainOffensiveClient\Model\ContactListEntry;
@@ -22,6 +23,11 @@ class ContactService implements ContactServiceInterface
   private $contactClient;
 
   /**
+   * @var ContactMatcherServiceInterface
+   */
+  private $contactMatcher;
+
+  /**
    * @var ValidatorInterface
    */
   private $validator;
@@ -29,28 +35,26 @@ class ContactService implements ContactServiceInterface
   public function __construct(
     ValidatorInterface $validator,
     AuthenticationClient $authenticationClient,
-    ContactClient $contactClient
+    ContactClient $contactClient,
+    ContactMatcherServiceInterface $contactMatcher
   ) {
     $this->validator = $validator;
     $this->authenticationClient = $authenticationClient;
     $this->contactClient = $contactClient;
+    $this->contactMatcher = $contactMatcher;
   }
 
   /**
    * @@inheritdoc
    */
   public function ensureContact(Contact $contact) {
-    if (!$contact->getHandle()) {
-      $result = $this->findContact($contact, $this->getList());
+    $result = $this->findContact($contact, $this->getList());
 
-      if (!$result) {
-        return $this->create($contact);
-      } else {
-        return $result;
-      }
+    if (!$result) {
+      return $this->create($contact);
     } else {
-      // TODO: Update remote contact
-      return $contact;
+      // TODO: Update contact
+      return $result;
     }
   }
 
@@ -62,7 +66,7 @@ class ContactService implements ContactServiceInterface
 
     $result = $this->contactClient->get($handle);
 
-    return $this->convertToContact($result);
+    return $this->convertResultToContact($result);
   }
 
   /**
@@ -71,7 +75,7 @@ class ContactService implements ContactServiceInterface
   public function getList() {
     $this->authenticationClient->authenticatePartner();
 
-    return array_map('convertToListEntry', $this->contactClient->getList());
+    return array_map('convertResultToListEntry', $this->contactClient->getList());
   }
 
   /**
@@ -79,7 +83,7 @@ class ContactService implements ContactServiceInterface
    *
    * @return ContactListEntry
    */
-  private function convertToListEntry($contact) {
+  private function convertResultToListEntry($contact) {
     return new ContactListEntry($contact[0], $contact[1], $contact[2]);
   }
 
@@ -128,33 +132,23 @@ class ContactService implements ContactServiceInterface
    * @param ContactListEntry[] $haystack
    *
    * @return Contact|null
-   * @throws InvalidContactException
+   * @throws ContactNotUniqueException
    */
   private function findContact(Contact $needle, array $haystack) {
-    /** @var ContactListEntry[] $possibleMatches */
-    $possibleMatches = [];
-
-    foreach ($haystack as $listEntry) {
-      if ($listEntry->getFirstName() == $needle->getFirstname()
-          && $listEntry->getLastName() == $needle->getLastname()
-      ) {
-        $possibleMatches[] = $listEntry;
-      }
-    }
-
-    /** @var Contact[] $matches */
+    /** @var Contact[] $possibleMatches */
     $matches = [];
 
-    foreach ($possibleMatches as $possibleMatch) {
-      $contact = $this->get($possibleMatch->getHandle());
-
-      if ($contact->getMail() == $needle->getMail() && $contact->getZipCode() == $needle->getZipCode()) {
-        $matches[] = $contact;
+    foreach ($haystack as $listEntry) {
+      if ($this->contactMatcher->matchList($listEntry, $needle)) {
+        $contact = $this->get($listEntry->getHandle());
+        if ($this->contactMatcher->matchDetails($contact, $needle)) {
+          $matches[] = $contact;
+        }
       }
     }
 
     if (count($matches) > 1) {
-      throw new InvalidContactException("Too many matching contacts");
+      throw new ContactNotUniqueException('More than one matching contact.');
     } elseif (count($matches) == 0) {
       return null;
     } else {
@@ -169,7 +163,7 @@ class ContactService implements ContactServiceInterface
    *
    * @return Contact
    */
-  private function convertToContact($result) {
+  private function convertResultToContact($result) {
     $contact = new Contact();
     $contact->setHandle($result['handle']);
 
