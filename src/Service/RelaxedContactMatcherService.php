@@ -15,20 +15,20 @@ class RelaxedContactMatcherService implements ContactMatcherServiceInterface
    * @inheritdoc
    */
   public function matchDetails(Contact $existingContact, Contact $potentialDuplicate) {
-    return $existingContact->getHandle() == $potentialDuplicate->getHandle()
-           || ($existingContact->getFirstname() == $potentialDuplicate->getFirstname()
-               && $existingContact->getLastname() == $potentialDuplicate->getLastname()
-               && $existingContact->getCompany() == $potentialDuplicate->getCompany()
-               && $existingContact->getMail() == $potentialDuplicate->getMail());
+    return ($existingContact->getHandle() == $potentialDuplicate->getHandle()
+            || ($existingContact->getFirstname() == $potentialDuplicate->getFirstname()
+                && $existingContact->getLastname() == $potentialDuplicate->getLastname()
+                && $existingContact->getCompany() == $potentialDuplicate->getCompany()
+                && $existingContact->getMail() == $potentialDuplicate->getMail()));
   }
 
   /**
    * @inheritdoc
    */
   public function matchList(ContactListEntry $existingContact, Contact $potentialDuplicate) {
-    return ($existingContact->getHandle() == $potentialDuplicate->getHandle())
-           || ($existingContact->getFirstName() == $potentialDuplicate->getFirstname()
-               && $existingContact->getLastName() == $potentialDuplicate->getLastname());
+    return (($existingContact->getHandle() == $potentialDuplicate->getHandle())
+            || ($existingContact->getFirstName() == $potentialDuplicate->getFirstname()
+                && $existingContact->getLastName() == $potentialDuplicate->getLastname()));
   }
 
 }

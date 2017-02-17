@@ -12,6 +12,11 @@ class ContactClient extends AbstractClient
    */
   private $soapClient;
 
+  /**
+   * ContactClient constructor.
+   *
+   * @param \SoapClient $soapClient
+   */
   public function __construct(\SoapClient $soapClient) {
     $this->soapClient = $soapClient;
   }
