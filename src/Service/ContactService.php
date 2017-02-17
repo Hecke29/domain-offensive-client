@@ -75,7 +75,7 @@ class ContactService implements ContactServiceInterface
   public function getList() {
     $this->authenticationClient->authenticatePartner();
 
-    return array_map('convertResultToListEntry', $this->contactClient->getList());
+    return array_map([&$this, 'convertResultToListEntry'], $this->contactClient->getList());
   }
 
   /**
