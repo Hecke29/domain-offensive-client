@@ -37,7 +37,7 @@ class ContactClient extends AbstractClient
    *
    * @return string
    */
-  public function createContact(
+  public function create(
     $firma,
     $vorname,
     $name,
@@ -55,7 +55,7 @@ class ContactClient extends AbstractClient
     $extra = []
   ) {
     $response = $this->soapClient->__soapCall(
-      "CreateContact",
+      'CreateContact',
       [
         $firma,
         $vorname,

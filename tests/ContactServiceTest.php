@@ -38,7 +38,7 @@ class ContactServiceTest extends \PHPUnit_Framework_TestCase
            ->method('getList')
            ->will($this->returnValue([]));
     $client->expects($this->once())
-           ->method('createContact')
+           ->method('create')
            ->with(
              $this->equalTo($contact->getCompany()),
              $this->equalTo($contact->getFirstname()),
@@ -104,7 +104,7 @@ class ContactServiceTest extends \PHPUnit_Framework_TestCase
            ->method('getList')
            ->will($this->returnValue([]));
     $client->expects($this->never())
-           ->method('createContact');
+           ->method('create');
 
     $auth = $this->createAuthMock();
 

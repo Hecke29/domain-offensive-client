@@ -104,7 +104,7 @@ class ContactService implements ContactServiceInterface
 
     $this->authenticationClient->authenticatePartner();
 
-    $handle = $this->contactClient->createContact(
+    $handle = $this->contactClient->create(
       $contact->getCompany(),
       $contact->getFirstname(),
       $contact->getLastname(),
