@@ -2,14 +2,14 @@
 
 namespace Hecke29\DomainOffensiveClient\Service;
 
-use Hecke29\DomainOffensiveClient\Exception\AuthenticationException;
 use Hecke29\DomainOffensiveClient\Exception\InvalidContactException;
 use Hecke29\DomainOffensiveClient\Model\Contact;
+use Hecke29\DomainOffensiveClient\Model\ContactListEntry;
 use Hecke29\DomainOffensiveClient\Service\Client\AuthenticationClient;
 use Hecke29\DomainOffensiveClient\Service\Client\ContactClient;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
-class ContactService
+class ContactService implements ContactServiceInterface
 {
   /**
    * @var AuthenticationClient
@@ -37,6 +37,53 @@ class ContactService
   }
 
   /**
+   * @@inheritdoc
+   */
+  public function ensureContact(Contact $contact) {
+    if (!$contact->getHandle()) {
+      $result = $this->findContact($contact, $this->getList());
+
+      if (!$result) {
+        return $this->create($contact);
+      } else {
+        return $result;
+      }
+    } else {
+      // TODO: Update remote contact
+      return $contact;
+    }
+  }
+
+  /**
+   * @inheritdoc
+   */
+  public function get($handle) {
+    $this->authenticationClient->authenticatePartner();
+
+    $result = $this->contactClient->get($handle);
+
+    return $this->convertToContact($result);
+  }
+
+  /**
+   * @inheritdoc
+   */
+  public function getList() {
+    $this->authenticationClient->authenticatePartner();
+
+    return array_map('convertToListEntry', $this->contactClient->getList());
+  }
+
+  /**
+   * @param $contact
+   *
+   * @return ContactListEntry
+   */
+  private function convertToListEntry($contact) {
+    return new ContactListEntry($contact[0], $contact[1], $contact[2]);
+  }
+
+  /**
    * Creates a new contact.
    *
    * @param Contact $contact
@@ -44,7 +91,7 @@ class ContactService
    * @return Contact
    * @throws \Exception
    */
-  public function create(Contact $contact) {
+  private function create(Contact $contact) {
     $errors = $this->validator->validate($contact);
 
     if (count($errors) > 0) {
@@ -77,19 +124,54 @@ class ContactService
   }
 
   /**
-   * Gets a single contact by handle.
+   * @param Contact            $needle
+   * @param ContactListEntry[] $haystack
    *
-   * @param $handle
+   * @return Contact|null
+   * @throws InvalidContactException
+   */
+  private function findContact(Contact $needle, array $haystack) {
+    /** @var ContactListEntry[] $possibleMatches */
+    $possibleMatches = [];
+
+    foreach ($haystack as $listEntry) {
+      if ($listEntry->getFirstName() == $needle->getFirstname()
+          && $listEntry->getLastName() == $needle->getLastname()
+      ) {
+        $possibleMatches[] = $listEntry;
+      }
+    }
+
+    /** @var Contact[] $matches */
+    $matches = [];
+
+    foreach ($possibleMatches as $possibleMatch) {
+      $contact = $this->get($possibleMatch->getHandle());
+
+      if ($contact->getMail() == $needle->getMail() && $contact->getZipCode() == $needle->getZipCode()) {
+        $matches[] = $contact;
+      }
+    }
+
+    if (count($matches) > 1) {
+      throw new InvalidContactException("Too many matching contacts");
+    } elseif (count($matches) == 0) {
+      return null;
+    } else {
+      return $matches[0];
+    }
+  }
+
+  /**
+   * Converts a result from API to array of Contacts
+   *
+   * @param $result
    *
    * @return Contact
    */
-  public function get($handle) {
-    $this->authenticationClient->authenticatePartner();
-
-    $result = $this->contactClient->get($handle);
-
+  private function convertToContact($result) {
     $contact = new Contact();
-    $contact->setHandle($handle);
+    $contact->setHandle($result['handle']);
 
     $contact->setCompany($result['company']);
     $contact->setFirstname($result['firstname']);
@@ -109,18 +191,6 @@ class ContactService
     $contact->setMail($result['email']);
 
     return $contact;
-  }
-
-  /**
-   * Gets a list of all clients
-   *
-   * @return array
-   * @throws AuthenticationException
-   */
-  public function getList() {
-    $this->authenticationClient->authenticatePartner();
-
-    return $this->contactClient->getList();
   }
 
   /**
