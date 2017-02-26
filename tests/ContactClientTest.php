@@ -28,7 +28,7 @@ class ContactClientTest extends \PHPUnit_Framework_TestCase
     $client = new ContactClient($soap);
 
     $actual =
-      $client->createContact(null, null, null, null, null, null, null, null, null, null, null, null, null, null);
+      $client->create(null, null, null, null, null, null, null, null, null, null, null, null, null, null);
     $this->assertEquals($handle, $actual);
   }
 
@@ -46,7 +46,7 @@ class ContactClientTest extends \PHPUnit_Framework_TestCase
 
     $this->expectException(InvalidContactException::class);
     $this->expectExceptionMessage($message);
-    $client->createContact(null, null, null, null, null, null, null, null, null, null, null, null, null, null);
+    $client->create(null, null, null, null, null, null, null, null, null, null, null, null, null, null);
   }
 
   public function testCreateFailedInvalidTelephone() {
@@ -63,7 +63,7 @@ class ContactClientTest extends \PHPUnit_Framework_TestCase
 
     $this->expectException(InvalidContactException::class);
     $this->expectExceptionMessage($message);
-    $client->createContact(null, null, null, null, null, null, null, null, null, null, null, null, null, null);
+    $client->create(null, null, null, null, null, null, null, null, null, null, null, null, null, null);
   }
 
   public function testGet() {
