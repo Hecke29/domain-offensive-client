@@ -5,6 +5,20 @@ namespace Hecke29\DomainOffensiveClient\Service;
 abstract class AbstractClient
 {
   /**
+   * @var \SoapClient
+   */
+  protected $soapClient;
+
+  /**
+   * ContactClient constructor.
+   *
+   * @param \SoapClient $soapClient
+   */
+  public function __construct(\SoapClient $soapClient) {
+    $this->soapClient = $soapClient;
+  }
+
+  /**
    * Determines if a response is successful or not
    *
    * @param array $response

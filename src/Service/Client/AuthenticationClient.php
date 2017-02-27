@@ -19,16 +19,12 @@ class AuthenticationClient extends AbstractClient
   private $password;
 
   /**
-   * @var \SoapClient
-   */
-  private $soapClient;
-
-  /**
    * @var string
    */
   private $username;
 
   public function __construct(\SoapClient $soapClient, $partner, $username, $password) {
+    parent::__construct($soapClient);
     $this->soapClient = $soapClient;
     $this->partner = $partner;
     $this->username = $username;
