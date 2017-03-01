@@ -80,7 +80,7 @@ class Contact
 
   /**
    * @Assert\NotBlank()
-   * TODO: Collection / Enum for Bundesland
+   * @Assert\Choice(callback = {"StateEnum", "getAll"})
    * @var string
    */
   private $state;
