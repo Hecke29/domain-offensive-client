@@ -73,14 +73,14 @@ class Contact
 
   /**
    * Handelsregisternummer
-   * TODO: RegEx
+   * @Assert\Regex("/^HR[AB]\s?[1-9][0-9]{3,6}$/")
    * @var string
    */
   private $registerId;
 
   /**
    * @Assert\NotBlank()
-   * @Assert\Choice(callback = {"StateEnum", "getAll"})
+   * @Assert\Choice(callback = {"\Hecke29\DomainOffensiveClient\Enum\StateEnum", "getAll"})
    * @var string
    */
   private $state;
@@ -93,7 +93,7 @@ class Contact
 
   /**
    * USt-IdNr.
-   * TODO: RegEx
+   * @Assert\Regex("/^DE[0-9]{9,9}$/")
    * @var string
    */
   private $taxId;
