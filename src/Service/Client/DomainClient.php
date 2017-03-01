@@ -6,6 +6,7 @@
 
 namespace Hecke29\DomainOffensiveClient\Service\Client;
 
+use Hecke29\DomainOffensiveClient\Exception\DomainRegistrationException;
 use Hecke29\DomainOffensiveClient\Service\AbstractClient;
 
 /**
@@ -26,9 +27,11 @@ class DomainClient extends AbstractClient
    * @param        $nameServers
    * @param int    $period
    * @param string $unit
+   *
+   * @return int
    */
   public function create($domain, $owner, $admin, $tech, $zone, $nameServers, $period = 1, $unit = 'y') {
-    $this->soapClient->__soapCall(
+    $response = $this->soapClient->__soapCall(
       'createDomain',
       [
         $domain,
@@ -41,5 +44,16 @@ class DomainClient extends AbstractClient
         ['sandbox' => true]
       ]
     );
+
+    if (!$this->isSuccessfulResponse($response)) {
+      $this->handleFailedResponse(
+        $response,
+        [
+          'Diese Domain wurde bereits registriert' => DomainRegistrationException::class,
+        ]
+      );
+    }
+
+    return $response['object'];
   }
 }
