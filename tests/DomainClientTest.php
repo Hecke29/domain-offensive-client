@@ -14,7 +14,11 @@ class DomainClientTest extends AbstractClientTest
   public function testCreateDomain() {
     $soapClient = $this->getSoapClient(
       'createDomain',
-      '',
+      [
+        'result'      => 'success',
+        'description' => 'This text is not necessary',
+        'object'      => '12345678'
+      ],
       [
         'webfoersterei.de',
         'SB1234567@HANDLES.DE',
