@@ -5,7 +5,7 @@ namespace Hecke29\DomainOffensiveClient\Tests;
 use Hecke29\DomainOffensiveClient\Exception\InvalidContactException;
 use Hecke29\DomainOffensiveClient\Service\Client\ContactClient;
 
-class ContactClientTest extends \PHPUnit_Framework_TestCase
+class ContactClientTest extends AbstractClientTest
 {
   private static $contacts = [
     ['SB1234567@HANDLES.DE', 'Fulton', 'Bolton'],
@@ -27,8 +27,7 @@ class ContactClientTest extends \PHPUnit_Framework_TestCase
     );
     $client = new ContactClient($soap);
 
-    $actual =
-      $client->create(null, null, null, null, null, null, null, null, null, null, null, null, null, null);
+    $actual = $client->create(null, null, null, null, null, null, null, null, null, null, null, null, null, null);
     $this->assertEquals($handle, $actual);
   }
 
@@ -95,28 +94,6 @@ class ContactClientTest extends \PHPUnit_Framework_TestCase
     $client = new ContactClient($soap);
 
     $this->assertEquals(self::$contacts, $client->getList());
-  }
-
-  /**
-   * @param $calledMethod
-   * @param $result
-   * @param $parameters
-   *
-   * @return \PHPUnit_Framework_MockObject_MockObject
-   */
-  private function getSoapClient($calledMethod, $result, $parameters = []) {
-    $soap = $this->getMockBuilder(\SoapClient::class)
-                 ->disableOriginalConstructor()
-                 ->getMock();
-    $soap->expects($this->once())
-         ->method('__soapCall')
-         ->with(
-           $this->equalTo($calledMethod),
-           $this->equalTo($parameters)
-         )
-         ->willReturn($result);
-
-    return $soap;
   }
 
 }

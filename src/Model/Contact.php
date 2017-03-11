@@ -42,7 +42,11 @@ class Contact
    */
   private $firstname;
 
-  /** @var string */
+  /**
+   * @Assert\Regex("/^[A-Z]{2}[0-9]{7}@HANDLES\.DE$/")
+   * @Assert\NotBlank(groups={"handleRequired"})
+   * @var string
+   */
   private $handle;
 
   /**

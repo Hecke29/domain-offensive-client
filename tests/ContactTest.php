@@ -9,8 +9,28 @@ use Symfony\Component\Validator\Validation;
 class ContactTest extends \PHPUnit_Framework_TestCase
 {
 
+  public static function getValidContact() {
+    $contact = new Contact();
+
+    /** @var Contact $contact */
+    $contact->setFirstname('Folton');
+    $contact->setLastname('Bolton');
+    $contact->setStreet('Waldring');
+    $contact->setHouseNumber('29b');
+    $contact->setZipCode('22589');
+    $contact->setCity('Ahrensburg');
+    $contact->setState('Schleswig-Holstein');
+    $contact->setBirthday(new \DateTime('1984-11-01'));
+    $contact->setCountry('Germany');
+    $contact->setPhone('+49 1234 5678910');
+    $contact->setFax('+49 99 000999');
+    $contact->setMail('mail@example.com');
+
+    return $contact;
+  }
+
   public function testPhoneValidation() {
-    $contact = $this->getValidContact();
+    $contact = self::getValidContact();
     $validator = $this->getValidator();
 
     $contact->setPhone(null);
@@ -42,7 +62,7 @@ class ContactTest extends \PHPUnit_Framework_TestCase
   }
 
   public function testRegisterIdValidation() {
-    $contact = $this->getValidContact();
+    $contact = self::getValidContact();
     $validator = $this->getValidator();
 
     $contact->setRegisterId('HRB 143666');
@@ -63,7 +83,6 @@ class ContactTest extends \PHPUnit_Framework_TestCase
     $contact->setRegisterId('HRA70343');
     $this->assertEquals(0, count($validator->validate($contact)));
 
-
     $contact->setRegisterId('irgendwas');
     $this->assertEquals(1, count($validator->validate($contact)));
 
@@ -82,7 +101,7 @@ class ContactTest extends \PHPUnit_Framework_TestCase
   }
 
   public function testStateValidation() {
-    $contact = $this->getValidContact();
+    $contact = self::getValidContact();
     $validator = $this->getValidator();
 
     $this->assertEquals(0, count($validator->validate($contact)));
@@ -101,26 +120,6 @@ class ContactTest extends \PHPUnit_Framework_TestCase
     $contact->setState('BadenWürttemberg');
     $this->assertEquals(1, count($validator->validate($contact)));
 
-  }
-
-  private function getValidContact() {
-    $contact = new Contact();
-
-    /** @var Contact $contact */
-    $contact->setFirstname('Folton');
-    $contact->setLastname('Bolton');
-    $contact->setStreet('Waldring');
-    $contact->setHouseNumber('29b');
-    $contact->setZipCode('22589');
-    $contact->setCity('Ahrensburg');
-    $contact->setState('Schleswig-Holstein');
-    $contact->setBirthday(new \DateTime('1984-11-01'));
-    $contact->setCountry('Germany');
-    $contact->setPhone('+49 1234 5678910');
-    $contact->setFax('+49 99 000999');
-    $contact->setMail('mail@example.com');
-
-    return $contact;
   }
 
   private function getValidator() {

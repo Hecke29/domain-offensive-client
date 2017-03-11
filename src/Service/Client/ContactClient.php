@@ -7,19 +7,6 @@ use Hecke29\DomainOffensiveClient\Service\AbstractClient;
 
 class ContactClient extends AbstractClient
 {
-  /**
-   * @var \SoapClient
-   */
-  private $soapClient;
-
-  /**
-   * ContactClient constructor.
-   *
-   * @param \SoapClient $soapClient
-   */
-  public function __construct(\SoapClient $soapClient) {
-    $this->soapClient = $soapClient;
-  }
 
   /**
    * Creates a ContactHandle and returns the handleName.
