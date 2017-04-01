@@ -20,76 +20,85 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
  */
 class DomainService implements DomainServiceInterface
 {
-  /**
-   * @var AuthenticationClient
-   */
-  private $authenticationClient;
+    /**
+     * @var AuthenticationClient
+     */
+    private $authenticationClient;
 
-  /**
-   * @var DomainClient
-   */
-  private $domainClient;
+    /**
+     * @var DomainClient
+     */
+    private $domainClient;
 
-  /**
-   * @var ValidatorInterface
-   */
-  private $validator;
+    /**
+     * @var ValidatorInterface
+     */
+    private $validator;
+    
+    /**
+     * @var array
+     */
+    private $nameServers;
 
-  public function __construct(
-    ValidatorInterface $validator,
-    AuthenticationClient $authenticationClient,
-    DomainClient $domainClient
-  ) {
-    $this->validator = $validator;
-    $this->authenticationClient = $authenticationClient;
-    $this->domainClient = $domainClient;
-  }
-
-  /**
-   * @inheritdoc
-   */
-  public function register(Domain $domain, Contact $owner, Contact $tech, Contact $admin, Contact $zone) {
-    $this->validateContact($owner);
-    $this->validateContact($tech);
-    $this->validateContact($admin);
-    $this->validateContact($zone);
-
-    $domainErrors = $this->validator->validate($domain);
-    if ($domainErrors->count() > 0) {
-      $firstError = $domainErrors->get(0);
-      throw new InvalidDomainException(
-        sprintf(
-          'Validation failed for domain %s: %s. Value: %s',
-          $domain->getFullName(),
-          $firstError->getMessage(),
-          $firstError->getInvalidValue()
-        )
-      );
+    public function __construct(
+        ValidatorInterface $validator,
+        AuthenticationClient $authenticationClient,
+        DomainClient $domainClient,
+        array $nameServers
+    ) {
+        $this->validator = $validator;
+        $this->authenticationClient = $authenticationClient;
+        $this->domainClient = $domainClient;
+        $this->nameServers = $nameServers;
     }
 
-    $this->authenticationClient->authenticatePartner();
+    /**
+     * @inheritdoc
+     */
+    public function register(Domain $domain, Contact $owner, Contact $tech, Contact $admin, Contact $zone)
+    {
+        $this->validateContact($owner);
+        $this->validateContact($tech);
+        $this->validateContact($admin);
+        $this->validateContact($zone);
 
-    $this->domainClient->create(
-      $domain->getFullName(),
-      $owner->getHandle(),
-      $tech->getHandle(),
-      $admin->getHandle(),
-      $zone->getHandle(),
-      []
-    );
-  }
+        $domainErrors = $this->validator->validate($domain);
+        if ($domainErrors->count() > 0) {
+            $firstError = $domainErrors->get(0);
+            throw new InvalidDomainException(
+                sprintf(
+                    'Validation failed for domain %s: %s. Value: %s',
+                    $domain->getFullName(),
+                    $firstError->getMessage(),
+                    $firstError->getInvalidValue()
+                )
+            );
+        }
 
-  /**
-   * Validates that a contact has a handle
-   *
-   * @param Contact $contact
-   *
-   * @throws InvalidContactException
-   */
-  private function validateContact(Contact $contact) {
-    if ($this->validator->validate($contact, null, ['handleRequired'])->count() > 0) {
-      throw new InvalidContactException('Contact not valid for use with domains.');
+        $this->authenticationClient->authenticatePartner();
+
+        $this->domainClient->create(
+            $domain->getFullName(),
+            $owner->getHandle(),
+            $tech->getHandle(),
+            $admin->getHandle(),
+            $zone->getHandle(),
+            $this->nameServers
+        );
     }
-  }
+
+    /**
+     * Validates that a contact has a handle
+     *
+     * @param Contact $contact
+     *
+     * @throws InvalidContactException
+     */
+    private function validateContact(Contact $contact)
+    {
+        if ($this->validator->validate($contact, null, ['handleRequired'])->count() > 0) {
+            throw new InvalidContactException('Contact not valid for use with domains.');
+        }
+    }
 
 }
