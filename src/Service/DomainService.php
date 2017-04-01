@@ -55,7 +55,7 @@ class DomainService implements DomainServiceInterface
     $this->validateContact($zone);
 
     $domainErrors = $this->validator->validate($domain);
-    if ($domainErrors) {
+    if ($domainErrors->count() > 0) {
       $firstError = $domainErrors->get(0);
       throw new InvalidDomainException(
         sprintf(
@@ -87,7 +87,7 @@ class DomainService implements DomainServiceInterface
    * @throws InvalidContactException
    */
   private function validateContact(Contact $contact) {
-    if ($this->validator->validate($contact, null, ['handleRequired']) > 0) {
+    if ($this->validator->validate($contact, null, ['handleRequired'])->count() > 0) {
       throw new InvalidContactException('Contact not valid for use with domains.');
     }
   }
