@@ -197,8 +197,13 @@ class ContactService implements ContactServiceInterface
   private function convertAddress($address) {
     preg_match('/([^\d]+)\s(.+)/i', $address, $result);
 
-    $street = trim($result[1]) ?: null;
-    $houseNumber = trim($result[2]) ?: null;
+    if(count($result) > 0) {
+        $street = isset($result[1]) ? trim($result[1]) : null;
+        $houseNumber = isset($result[2]) ? trim($result[2]) : null;
+    } else {
+        $street = trim($address);
+        $houseNumber = null;
+    }
 
     return [$street, $houseNumber];
   }
